@@ -148,14 +148,23 @@ innerModal.appendChild(buttonsContainer);
 buttonsContainer.addEventListener('click', (e) => {
     // if the next button was clicked
     if (e.target.textContent === 'Next') {
-        // add one to the index representing the person to show, then use that index to pass the person into displayModal
-        index = Number(index) + Number(1);
-        displayModal(people[index]);
+        // if the index is less than the maximum index number (which is the no. of people minus one)...
+        // ... since we don't want to add one if we are already at the end of the list
+        if (index < (Number(people.length) - Number(1))) {
+            // add one to the index representing the person to show, then use that index to pass the person into displayModal
+            index = Number(index) + Number(1);
+            displayModal(people[index]);
+        }
+
     } else if (e.target.textContent === 'Prev') {
     // else if the previous button was clicked
-        // subtract 1 from index representing person to show, then use idex to pass that person into displayModal.
-        index = Number(index) - Number(1);
-        displayModal(people[index]);
+        // if the index number is greater than 0 (since we dont' want to subtract/go back from 0)
+        if (index > Number(0)) {
+            // subtract 1 from index representing person to show, then use idex to pass that person into displayModal.
+            index = Number(index) - Number(1);
+            displayModal(people[index]);
+        }
+
     }
 });
 
@@ -195,12 +204,12 @@ gallery.addEventListener('click', (e) => {
         index = e.target.id;
         // pass in this person to the displayModal function
         displayModal(person);
-    // repeat process for elements inside the 'card; parent
+    // repeat process for child elements inside the 'card' parent
     } else if (e.target.parentElement.classList.contains('card')) {
         person = people[e.target.parentElement.id];
         index = e.target.parentElement.id;
         displayModal(person);
-
+    // repeat for grandchild elements
     } else if (e.target.parentElement.parentElement.classList.contains('card')) {
         person = people[e.target.parentElement.parentElement.id];
         index = e.target.parentElement.parentElement.id;
