@@ -4,6 +4,10 @@
 let people = [];
 // filtered array of people when the user searches
 let filteredPeople = [];
+// object to store person, declared globally so it can be called in different contexts
+let person = {};
+// variable to store the index of the person currently in the modal, so we can toggle up and down
+let index = 0;
 
 /**
  * SEARCH CONTAINER
@@ -25,12 +29,12 @@ function searchFilter() {
     filteredPeople = [];
     // get the user's search term
     const userInput = searchInput.value.toLowerCase();
-    people.forEach(person => {
+    people.forEach(individual => {
         // create full name from first and last name properties, set to lower case for case insensitive comparison vs search term
-        const fullName = `${person.name.first} ${person.name.last}`.toLowerCase();
+        const fullName = `${individual.name.first} ${individual.name.last}`.toLowerCase();
         // if the person's name includes the search term, add them to the new array of people we will pass in to showPeople
         if(fullName.includes(userInput)) {
-            filteredPeople.push(person);
+            filteredPeople.push(individual);
         } 
     });
     // show the list of people, passing in the list filtered by search term to showPeople function
@@ -64,7 +68,6 @@ function showPeople(people) {
     gallery.innerHTML = '';
     // loop through the people passed in
     for (let i = 0; i < people.length; i++) {
-        console.log('people[i]: ', people[i]);
         // create card to display person on page, add the 'card' class
         let personCard = document.createElement('div');
         personCard.classList.add('card');
@@ -97,7 +100,6 @@ async function fetchUsers() {
         // parse the response object as json, store in 'data'
         const data = await response.json();
         //
-        console.log(data);
         people = data.results;
         // pass in 'people' to showPeople function to display the retrieved people on the page
         showPeople(people);
@@ -114,6 +116,48 @@ async function fetchUsers() {
 // create modal container, add 'modal-container' class and add it to the page (after #gallery)
 let modalContainer = document.createElement('div');
 modalContainer.classList.add('modal-container'); 
+// create it's 'modal' child div, which we will update with a person's info when a modal is launched/changed
+let innerModal = document.createElement('div');
+// give it the 'modal' class, then add it to the container
+innerModal.classList.add('modal'); 
+// add button to innerModal
+innerModal.insertAdjacentHTML('afterbegin', `
+    <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>    
+`);
+modalContainer.appendChild(innerModal);
+// create child of innerModal to contain the person-relevant info in the modal
+let personModal = document.createElement('div');
+personModal.classList.add('modal-info-container');
+innerModal.appendChild(personModal);
+// create child div for innerModal, to contain the buttons. Then append
+let buttonsContainer = document.createElement('div');
+buttonsContainer.insertAdjacentHTML('afterbegin', `             
+        <div class="modal-btn-container">
+            <button type="button" id="modal-prev" class="modal-prev btn">Prev</button>
+            <button type="button" id="modal-next" class="modal-next btn">Next</button>
+        </div>
+    `
+)
+innerModal.appendChild(buttonsContainer);
+
+/**
+ * MODAL TOGGLE
+ */
+
+// add a listener to the buttonsContainer, to listen for the 'next or previous' buttons being clicked
+buttonsContainer.addEventListener('click', (e) => {
+    // if the next button was clicked
+    if (e.target.textContent === 'Next') {
+        // add one to the index representing the person to show, then use that index to pass the person into displayModal
+        index = Number(index) + Number(1);
+        displayModal(people[index]);
+    } else if (e.target.textContent === 'Prev') {
+    // else if the previous button was clicked
+        // subtract 1 from index representing person to show, then use idex to pass that person into displayModal.
+        index = Number(index) - Number(1);
+        displayModal(people[index]);
+    }
+});
 
 // function to display the modal, passing in the person we want to do this for
 function displayModal(person) {
@@ -121,22 +165,17 @@ function displayModal(person) {
     let birthday = new Date(Date.parse(person.dob.date));
     let dateFormat = new Intl.DateTimeFormat("en-US");
     let newBirthday = dateFormat.format(birthday);
-    // add relevant person info to modalContainer in desired HTML foramt
-    modalContainer.innerHTML = `
-        <div class="modal">
-            <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
-            <div class="modal-info-container">
-                <img class="modal-img" src="${person.picture.medium}" alt="profile picture">
-                <h3 id="name" class="modal-name cap">${person.name.first} ${person.name.last}</h3>
-                <p class="modal-text">${person.email}</p>
-                <p class="modal-text cap">${person.location.city}</p>
-                <hr>
-                <p class="modal-text">${person.phone}</p>
-                <p class="modal-text">${person.location.street.number} ${person.location.street.name}, ${person.location.city}, ${person.location.postcode}</p>
-                <p class="modal-text">Birthday: ${newBirthday}</p>
-            </div>
-        </div>        
-        `;
+    // add relevant person info to personModal in desired HTML format
+    personModal.innerHTML = `
+        <img class="modal-img" src="${person.picture.medium}" alt="profile picture">
+        <h3 id="name" class="modal-name cap">${person.name.first} ${person.name.last}</h3>
+        <p class="modal-text">${person.email}</p>
+        <p class="modal-text cap">${person.location.city}</p>
+        <hr>
+        <p class="modal-text">${person.phone}</p>
+        <p class="modal-text">${person.location.street.number} ${person.location.street.name}, ${person.location.city}, ${person.location.postcode}</p>
+        <p class="modal-text">Birthday: ${newBirthday}</p>
+    `;
     // display the container
     modalContainer.style.display = 'flex';
 }
@@ -145,23 +184,26 @@ function displayModal(person) {
 modalContainer.style.display = 'none';
 gallery.insertAdjacentElement('afterend', modalContainer);
 // listen for clicks on parent element of person cards for clicks on people using bubbling
-
 gallery.addEventListener('click', (e) => {
     // check that it was a person card that was clicked
     // do this by checking if the element clicked was the 'card' parent, one of it's children...
     // ... or one of it's grandchildren. This encompasses all elements in the person card
     if (e.target.classList.contains('card')) {
         // get the person via matching person card id with people array index
-        const person = people[e.target.id];
+        person = people[e.target.id];
+        // save the index of the person in the modal
+        index = e.target.id;
         // pass in this person to the displayModal function
         displayModal(person);
     // repeat process for elements inside the 'card; parent
     } else if (e.target.parentElement.classList.contains('card')) {
-        const person = people[e.target.parentElement.id];
+        person = people[e.target.parentElement.id];
+        index = e.target.parentElement.id;
         displayModal(person);
 
     } else if (e.target.parentElement.parentElement.classList.contains('card')) {
-        const person = people[e.target.parentElement.parentElement.id];
+        person = people[e.target.parentElement.parentElement.id];
+        index = e.target.parentElement.parentElement.id;
         displayModal(person);
     } 
 });
