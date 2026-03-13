@@ -79,4 +79,3 @@ gallery.addEventListener('click', (e) => {
 });
 // call fetchUsers to run the program
 fetchUsers();
-// test2
