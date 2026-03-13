@@ -127,7 +127,7 @@ innerModal.insertAdjacentHTML('afterbegin', `
 modalContainer.appendChild(innerModal);
 // create child of innerModal to contain the person-relevant info in the modal
 let personModal = document.createElement('div');
-personModal.classList.add('modal-info-container');
+personModal.classList.add('modal-info-container', 'fade');
 innerModal.appendChild(personModal);
 // create child div for innerModal, to contain the buttons. Then append
 let buttonsContainer = document.createElement('div');
@@ -155,9 +155,8 @@ buttonsContainer.addEventListener('click', (e) => {
             index = Number(index) + Number(1);
             displayModal(people[index]);
         }
-
-    } else if (e.target.textContent === 'Prev') {
     // else if the previous button was clicked
+    } else if (e.target.textContent === 'Prev') {
         // if the index number is greater than 0 (since we dont' want to subtract/go back from 0)
         if (index > Number(0)) {
             // subtract 1 from index representing person to show, then use idex to pass that person into displayModal.
@@ -174,6 +173,8 @@ function displayModal(person) {
     let birthday = new Date(Date.parse(person.dob.date));
     let dateFormat = new Intl.DateTimeFormat("en-US");
     let newBirthday = dateFormat.format(birthday);
+    // Remove modal temporarily, so we can re-add it so that it fades in
+    innerModal.removeChild(personModal);
     // add relevant person info to personModal in desired HTML format
     personModal.innerHTML = `
         <img class="modal-img" src="${person.picture.medium}" alt="profile picture">
@@ -187,6 +188,8 @@ function displayModal(person) {
     `;
     // display the container
     modalContainer.style.display = 'flex';
+    // re-add modal so that it fades in
+    innerModal.insertBefore(personModal, buttonsContainer);
 }
 
 // set it's display to initially none

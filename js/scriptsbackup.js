@@ -6,6 +6,8 @@ let people = [];
 let filteredPeople = [];
 // object to store person, declared globally so it can be called in different contexts
 let person = {};
+// variable to store the index of the person currently in the modal, so we can toggle up and down
+let index = 0;
 
 /**
  * SEARCH CONTAINER
@@ -66,7 +68,6 @@ function showPeople(people) {
     gallery.innerHTML = '';
     // loop through the people passed in
     for (let i = 0; i < people.length; i++) {
-        console.log('people[i]: ', people[i]);
         // create card to display person on page, add the 'card' class
         let personCard = document.createElement('div');
         personCard.classList.add('card');
@@ -99,7 +100,6 @@ async function fetchUsers() {
         // parse the response object as json, store in 'data'
         const data = await response.json();
         //
-        console.log(data);
         people = data.results;
         // pass in 'people' to showPeople function to display the retrieved people on the page
         showPeople(people);
@@ -120,9 +120,14 @@ modalContainer.classList.add('modal-container');
 let innerModal = document.createElement('div');
 // give it the 'modal' class, then add it to the container
 innerModal.classList.add('modal'); 
+// add button to innerModal
+innerModal.insertAdjacentHTML('afterbegin', `
+    <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>    
+`);
 modalContainer.appendChild(innerModal);
 // create child of innerModal to contain the person-relevant info in the modal
 let personModal = document.createElement('div');
+personModal.classList.add('modal-info-container');
 innerModal.appendChild(personModal);
 // create child div for innerModal, to contain the buttons. Then append
 let buttonsContainer = document.createElement('div');
@@ -142,8 +147,25 @@ innerModal.appendChild(buttonsContainer);
 // add a listener to the buttonsContainer, to listen for the 'next or previous' buttons being clicked
 buttonsContainer.addEventListener('click', (e) => {
     // if the next button was clicked
+    if (e.target.textContent === 'Next') {
+        // if the index is less than the maximum index number (which is the no. of people minus one)...
+        // ... since we don't want to add one if we are already at the end of the list
+        if (index < (Number(people.length) - Number(1))) {
+            // add one to the index representing the person to show, then use that index to pass the person into displayModal
+            index = Number(index) + Number(1);
+            displayModal(people[index]);
+        }
 
+    } else if (e.target.textContent === 'Prev') {
     // else if the previous button was clicked
+        // if the index number is greater than 0 (since we dont' want to subtract/go back from 0)
+        if (index > Number(0)) {
+            // subtract 1 from index representing person to show, then use idex to pass that person into displayModal.
+            index = Number(index) - Number(1);
+            displayModal(people[index]);
+        }
+
+    }
 });
 
 // function to display the modal, passing in the person we want to do this for
@@ -152,20 +174,17 @@ function displayModal(person) {
     let birthday = new Date(Date.parse(person.dob.date));
     let dateFormat = new Intl.DateTimeFormat("en-US");
     let newBirthday = dateFormat.format(birthday);
-    // add relevant person info to personModal in desired HTML foramt
+    // add relevant person info to personModal in desired HTML format
     personModal.innerHTML = `
-        <button type="button" id="modal-close-btn" class="modal-close-btn"><strong>X</strong></button>
-        <div class="modal-info-container">
-            <img class="modal-img" src="${person.picture.medium}" alt="profile picture">
-            <h3 id="name" class="modal-name cap">${person.name.first} ${person.name.last}</h3>
-            <p class="modal-text">${person.email}</p>
-            <p class="modal-text cap">${person.location.city}</p>
-            <hr>
-            <p class="modal-text">${person.phone}</p>
-            <p class="modal-text">${person.location.street.number} ${person.location.street.name}, ${person.location.city}, ${person.location.postcode}</p>
-            <p class="modal-text">Birthday: ${newBirthday}</p>
-        </div>
-        `;
+        <img class="modal-img" src="${person.picture.medium}" alt="profile picture">
+        <h3 id="name" class="modal-name cap">${person.name.first} ${person.name.last}</h3>
+        <p class="modal-text">${person.email}</p>
+        <p class="modal-text cap">${person.location.city}</p>
+        <hr>
+        <p class="modal-text">${person.phone}</p>
+        <p class="modal-text">${person.location.street.number} ${person.location.street.name}, ${person.location.city}, ${person.location.postcode}</p>
+        <p class="modal-text">Birthday: ${newBirthday}</p>
+    `;
     // display the container
     modalContainer.style.display = 'flex';
 }
@@ -181,15 +200,19 @@ gallery.addEventListener('click', (e) => {
     if (e.target.classList.contains('card')) {
         // get the person via matching person card id with people array index
         person = people[e.target.id];
+        // save the index of the person in the modal
+        index = e.target.id;
         // pass in this person to the displayModal function
         displayModal(person);
-    // repeat process for elements inside the 'card; parent
+    // repeat process for child elements inside the 'card' parent
     } else if (e.target.parentElement.classList.contains('card')) {
-        const person = people[e.target.parentElement.id];
+        person = people[e.target.parentElement.id];
+        index = e.target.parentElement.id;
         displayModal(person);
-
+    // repeat for grandchild elements
     } else if (e.target.parentElement.parentElement.classList.contains('card')) {
-        const person = people[e.target.parentElement.parentElement.id];
+        person = people[e.target.parentElement.parentElement.id];
+        index = e.target.parentElement.parentElement.id;
         displayModal(person);
     } 
 });
