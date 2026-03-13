@@ -1,19 +1,95 @@
 //
 
+// create array for saving people to so we can reference them later when creating modal & searching by name
+let people = [];
+// filtered array of people when the user searches
+let filteredPeople = [];
+
+/**
+ * SEARCH CONTAINER
+ */
+
+// Get search container parent
+let searchParent = document.querySelector('.search-container');
+// Add inner HTML to container
+searchParent.insertAdjacentHTML('beforeend', `
+    <form action="#" method="get">
+        <input type="search" id="search-input" class="search-input" placeholder="Search...">
+        <input type="submit" value="&#x1F50D;" id="search-submit" class="search-submit">
+    </form>
+`)
+
+// function to filter the search results based on user input in search box. Will be run on search typing or clicking button
+function searchFilter() {
+    // reset filtered people
+    filteredPeople = [];
+    // get the user's search term
+    const userInput = searchInput.value.toLowerCase();
+    people.forEach(person => {
+        // create full name from first and last name properties, set to lower case for case insensitive comparison vs search term
+        const fullName = `${person.name.first} ${person.name.last}`.toLowerCase();
+        // if the person's name includes the search term, add them to the new array of people we will pass in to showPeople
+        if(fullName.includes(userInput)) {
+            filteredPeople.push(person);
+        } 
+    });
+    // show the list of people, passing in the list filtered by search term to showPeople function
+    showPeople(filteredPeople);    
+}
+
+// listen for the user typing in the search box, using keyup
+const searchInput = document.getElementById('search-input')
+searchInput.addEventListener('keyup', (e) => {
+    // when something is typed in the search box, run searchFilter
+    searchFilter();
+});
+
+// listen for the search button being clicked; if so, prevent page refresh and run searchFilter
+const searchButton = document.getElementById('search-submit')
+searchButton.addEventListener('click', (e) => {
+    e.preventDefault();
+    searchFilter();
+});
+
 /**
  * FETCH AND ADD EMPLOYEES TO PAGE
  */
 
 // get gallery element
 let gallery = document.getElementById('gallery');
-// create array for saving people to so we can reference them later when creating modal
-let people = [];
 
-// fetch 12 random users
+// function to create cards for each person retrieved from fetch/search, and add to page
+function showPeople(people) {
+    // clear existing people
+    gallery.innerHTML = '';
+    // loop through the people passed in
+    for (let i = 0; i < people.length; i++) {
+        console.log('people[i]: ', people[i]);
+        // create card to display person on page, add the 'card' class
+        let personCard = document.createElement('div');
+        personCard.classList.add('card');
+        // add the person's array index to the card, which we can use for finding them later
+        personCard.id = i;
+        // add the HTML to the card, interpolating in the relevant info for each person
+        personCard.insertAdjacentHTML('afterbegin', `
+            <div class="card-img-container">
+                <img class="card-img" src="${people[i].picture.thumbnail}" alt="profile picture">
+            </div>
+            <div class="card-info-container">
+                <h3 id="name" class="card-name cap">${people[i].name.first} ${people[i].name.last}</h3>
+                <p class="card-text">${people[i].email}</p>
+                <p class="card-text cap">${people[i].location.city}, ${people[i].location.state}</p>
+            </div>
+        `)
+        // add the person's info card to the gallery container
+        gallery.appendChild(personCard);
+    };
+}
+// fetch 12 random usersm but only from countries with an English alphabet
 
 async function fetchUsers() {
     try {
-        const response = await fetch('https://randomuser.me/api/?results=12');
+        const response = await fetch('https://randomuser.me/api/?results=12&nat=AU,CA,CH,GB,IE,IN,NL,NZ,US');
         // if there server doesn't respond with 20, throw an error
         if(!response.ok) {
             throw new Error(error);
@@ -23,26 +99,8 @@ async function fetchUsers() {
         //
         console.log(data);
         people = data.results;
-        for (let i = 0; i < people.length; i++) {
-            // create card to display person on page, add the 'card' class
-            let personCard = document.createElement('div');
-            personCard.classList.add('card');
-            // add the person's array index to the card, which we can use for finding them later
-            personCard.id = i;
-            // add the HTML to the card, interpolating in the relevant info for each person
-            personCard.insertAdjacentHTML('afterbegin', `
-                <div class="card-img-container">
-                    <img class="card-img" src="${people[i].picture.thumbnail}" alt="profile picture">
-                </div>
-                <div class="card-info-container">
-                    <h3 id="name" class="card-name cap">${people[i].name.first} ${people[i].name.last}</h3>
-                    <p class="card-text">${people[i].email}</p>
-                    <p class="card-text cap">${people[i].location.city}, ${people[i].location.state}</p>
-                </div>
-            `)
-            // add the person's info card to the gallery container
-            gallery.appendChild(personCard);
-        };
+        // pass in 'people' to showPeople function to display the retrieved people on the page
+        showPeople(people);
     } catch(error) {
         // display error in the console
         console.log(error);
