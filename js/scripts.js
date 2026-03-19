@@ -263,10 +263,10 @@ function displayModal(person, buttonClicked) {
     if (buttonClicked === 'Prev') {
         // display modal by removing hide-class
         previousModal.classList.remove('hide-modal');
-        
+
 // THE TRANSITION WORKS WITH THESE TWO LINES, DESPITE THEIR SEEMING IRRELEVANCE. IF 269 IS COMMENTED OUT, THERE IS NO TRANSITION
         let style = window.getComputedStyle(previousModal); 
-        let left = style.getPropertyValue('left');
+        //let left = style.getPropertyValue('left');
 // 'SLIDE2' IS THE TRANSITION CLASS. BUT TRANSITION ONLY WORKS IF ABOVE LINES ARE PRESENT
         // add the classes to slide in the modal, + display it properly
         previousModal.classList.add('modal-info-container', 'modal2', 'slide2');
