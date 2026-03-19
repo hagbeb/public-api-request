@@ -164,6 +164,7 @@ header h1 {
     background: rgba(0, 0, 0, 0.8);
     border-radius: 0.25em;
     border: 1px solid rgba(50, 50, 50, 0.3);
+    z-index: 30;
 }
 
 .modal-img {
@@ -267,4 +268,59 @@ header h1 {
         background: rgba(255, 255, 255, 1);
         color: rgba(25, 25, 25, 1); 
     }
+}
+
+.next-modal {
+    position: absolute;
+    right: -1px;
+    top: var(--modal-top-position);
+}
+
+.previous-modal {
+    position: absolute;
+    left: 100%;
+    top: var(--modal-top-position);
+}
+
+.hide-modal {
+    display: none;
+}
+
+:root {
+  --modal-left-position: 0px;
+  --modal-top-position: 0px;
+}
+
+.slide2 {
+   left: var(--modal-left-position);
+   transition: left .2s ease-out;
+}
+
+.slide {
+    z-index:10;
+    animation-name: myAnimation;
+    animation-duration: .2s;
+    animation-timing-function: ease-out;
+}
+
+@keyframes myAnimation {
+    from {left: 100%;}
+    to {left: var(--modal-left-position);}
+}
+
+.modal2 {
+    width: 95%;
+    max-width: 420px;
+    min-height: 415px;
+    /*margin: 10px auto auto;*/
+    padding-bottom: 15px;
+    background: rgba(255, 255, 255, 1);
+    /*border-radius: 0.25em;
+    border: 1px solid rgba(100, 100, 100, 0.3);*/
+}
+
+.modal2 hr {
+    width: 75%;
+    margin: 25px auto 30px;
+    border-color: rgba(200, 200, 200, 0.2);
 }

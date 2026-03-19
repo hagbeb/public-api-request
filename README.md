@@ -9,3 +9,5 @@ Use Random User Generator API to create mockup of company employee page
 
 (scripts.js line 130) This class was added to the element which contained the persons info in the modal
 (scripts.js lines 177 & 192) Every time we wanted to display a modal, we removed the modal div and then re-added it to make sure it faded in
+
+the .modal-close-btn class was made z-index 30 so that the slide did not go over it.
