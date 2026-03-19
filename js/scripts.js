@@ -137,8 +137,7 @@ nextModal.classList.add('modal-info-container', 'next-modal', 'hide-modal');
 let previousModal = document.createElement('div');
 previousModal.id = 'previous';
 previousModal.classList.add('previous-modal', 'hide-modal');
-
-
+// placeholder for new modal when we need to generate a new one after sliding in next/previous modals
 let placeholderModal;
 
 // add current modal to innerModal
@@ -161,8 +160,6 @@ innerModal.appendChild(buttonsContainer);
 // Allow us to dynamically update the 'left' position in the 'slide' class, so the new modals now where to go
 // get the CSS root element
 var root = document.querySelector(':root');
-console.log('root: ', root);
-
 
 // function to get the 'top' position of the current modal, which we can use to position slider modals
 function getModalCoord(element, position) {
@@ -232,14 +229,10 @@ function generateModalHTML(person) {
         <p class="modal-text">${person.location.street.number} ${person.location.street.name}, ${person.location.city}, ${person.location.postcode}</p>
         <p class="modal-text">Birthday: ${newBirthday}</p>
     `;
-
-    // re-add modal so that it fades in
-    //innerModal.insertBefore(personModal, buttonsContainer);
-  
 }
 
+// function to display modal when a person is clicked, or next/previous button. Pass in the person + the button
 function displayModal(person, buttonClicked) {
-
     // if the button clicked was gallery, then we display the person clicked
     if (buttonClicked === 'gallery') {
     // Display current person in modal:
@@ -253,11 +246,6 @@ function displayModal(person, buttonClicked) {
         root.style.setProperty('--modal-left-position', `${getModalCoord(currentModal, 'left')}px`);
         // update the 'top' 'property' used by 'next'/'previous' modals, using coord of the currentModal
         root.style.setProperty('--modal-top-position', `${getModalCoord(currentModal, 'top')}px`);
-    
-    // not using
-        //nextModal.style.top = `${getModalCoord(innerModal, 'top')}px`;
-        //previousModal.style.top = `${getModalCoord(innerModal, 'top')}px`;
-        //console.log('innerModal top: ', getModalCoord(innerModal, 'top'));
 
     // Generate 'next' and 'previous' modal HTML using next/previous people in the array
         // if the index is less than the maximum index number (which is the no. of people minus one)...
@@ -275,14 +263,11 @@ function displayModal(person, buttonClicked) {
     if (buttonClicked === 'Prev') {
         // display modal by removing hide-class
         previousModal.classList.remove('hide-modal');
-
-
-
-        //console.log('previousModal.innerHTML: ', previousModal.innerHTML);
+        
+// THE TRANSITION WORKS WITH THESE TWO LINES, DESPITE THEIR SEEMING IRRELEVANCE. IF 269 IS COMMENTED OUT, THERE IS NO TRANSITION
         let style = window.getComputedStyle(previousModal); 
         let left = style.getPropertyValue('left');
-        //console.log('left: ', left);
-        
+// 'SLIDE2' IS THE TRANSITION CLASS. BUT TRANSITION ONLY WORKS IF ABOVE LINES ARE PRESENT
         // add the classes to slide in the modal, + display it properly
         previousModal.classList.add('modal-info-container', 'modal2', 'slide2');
 
@@ -306,6 +291,8 @@ function displayModal(person, buttonClicked) {
             placeholderModal.style.top = `${getModalCoord(innerModal, 'top')}px`;
             // add the relevant classes
             placeholderModal.classList.add('previous-modal', 'hide-modal');
+
+
             document.body.appendChild(placeholderModal);
         // Change file variables to reflect the new modal positions
             // assign the 'currentModal' variable to the modal that we moved into the current position
@@ -365,11 +352,6 @@ gallery.addEventListener('click', (e) => {
 // If it was, hide the modal container
 modalContainer.addEventListener('click', (e) => {
     if (e.target.id === 'modal-close-btn' || e.target.parentElement.id === 'modal-close-btn') {
-        
-        
-
-
-
         modalContainer.style.display = 'none';
     // but if the modal container was clicked, we want to close the modal (since this means...
     // ... that outside the modal itself was clicked
