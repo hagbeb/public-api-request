@@ -270,33 +270,36 @@ header h1 {
     }
 }
 
+/* Use a variable for left position that we can update in JS to position 'next' and 'previous' modals */
+:root {
+  --modal-left-position: 0px;
+  --modal-top-position: 0px;
+}
+/* specific classes for the 'next' and 'previous' modals that slide into the page */
 .next-modal {
-    position: absolute;
+    position: fixed;
     right: -1px;
     top: var(--modal-top-position);
 }
 
 .previous-modal {
-    position: absolute;
+    position: fixed;
     left: 100%;
     top: var(--modal-top-position);
 }
 
+/* class to hide the extra modals until they are needed */
 .hide-modal {
     display: none;
 }
 
-:root {
-  --modal-left-position: 0px;
-  --modal-top-position: 0px;
-}
-
-.slide2 {
+/* class to activate the slide. It needs to know which left position to go, which we set in JS */
+.slide {
    left: var(--modal-left-position);
    transition: left .2s ease-out;
 }
 
-.slide {
+.slide2 {
     z-index:10;
     animation-name: myAnimation;
     animation-duration: .2s;
@@ -308,10 +311,13 @@ header h1 {
     to {left: var(--modal-left-position);}
 }
 
-.modal2 {
+/* extra-modals class applies to both the 'next' and 'previous' modals that slide into page */
+.extra-modals {
     width: 95%;
     max-width: 420px;
     min-height: 415px;
+    margin-top: 100px;
+    margin-bottom: auto;
     /*margin: 10px auto auto;*/
     padding-bottom: 15px;
     background: rgba(255, 255, 255, 1);
@@ -319,7 +325,7 @@ header h1 {
     border: 1px solid rgba(100, 100, 100, 0.3);*/
 }
 
-.modal2 hr {
+.extra-modals hr {
     width: 75%;
     margin: 25px auto 30px;
     border-color: rgba(200, 200, 200, 0.2);
