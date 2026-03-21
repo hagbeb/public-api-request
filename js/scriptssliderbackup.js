@@ -137,7 +137,7 @@ currentModal.id = 'current';
 currentModal.classList.add('modal-info-container');
 let nextModal = document.createElement('div');
 nextModal.id = 'next';
-nextModal.classList.add('modal-info-container', 'next-modal', 'hide-modal');
+nextModal.classList.add('next-modal', 'hide-modal');
 let previousModal = document.createElement('div');
 previousModal.id = 'previous';
 previousModal.classList.add('previous-modal', 'hide-modal');
@@ -148,8 +148,8 @@ let placeholderModal;
 innerModal.appendChild(currentModal);
 // add the next and previous modals to the body, so we can absolute position them
 document.body.appendChild(nextModal);
-modal.appendChild(previousModal);
-//
+document.body.appendChild(previousModal);
+
 // create child div for innerModal, to contain the buttons. Then append
 let buttonsContainer = document.createElement('div');
 buttonsContainer.insertAdjacentHTML('afterbegin', `             
@@ -165,20 +165,11 @@ innerModal.appendChild(buttonsContainer);
 // get the CSS root element
 var root = document.querySelector(':root');
 
-// function to get the 'top' position of the current modal, which we can use to position slider modals
-function getModalCoord(element, position) {
+// function to get the 'left' position of the current modal, which we can use to position slider modals
+function getModalLeftPosition(element) {
     // get the coords of the modal element
     let rect = element.getBoundingClientRect();
-    // get the top coord, and return in
-    if (position === 'top') {
-        position = rect.top + document.documentElement.scrollTop;
-    } else if (position === 'left') {
-        position = rect.left + document.documentElement.scrollLeft;
-        // don't let left be more than the width of the screen
-        if (position > document.documentElement.clientWidth) {
-            position = document.documentElement.clientWidth;
-        };
-    }
+    let position = rect.left + document.documentElement.scrollLeft;
     return position;
 };
 
@@ -208,21 +199,16 @@ buttonsContainer.addEventListener('click', (e) => {
             console.log('index: ', index);
             displayModal(people[index], 'Prev');
         }
-
     }
 });
 
 // function to display the modal, passing in the person we want to do this for
 function generateModalHTML(person) {
-    console.log('running generate modal');
     // format their birthday by parsing their date property, and formatting to US date format
     let birthday = new Date(Date.parse(person.dob.date));
     let dateFormat = new Intl.DateTimeFormat("en-US");
     let newBirthday = dateFormat.format(birthday);
-    // Remove modal temporarily, so we can re-add it so that it fades in
-    // innerModal.removeChild(personModal);
-    // add relevant person info to personModal in desired HTML format
-
+    // return the HTML, using the passed in person and above birthday value 
     return `
         <img class="modal-img" src="${person.picture.medium}" alt="profile picture">
         <h3 id="name" class="modal-name cap">${person.name.first} ${person.name.last}</h3>
@@ -246,14 +232,9 @@ function displayModal(person, buttonClicked) {
         // display the container to display the current modal (which is always visible when container is open)
         modalContainer.style.display = 'flex';
 
-    // Update position of 'next'/'previous' modals using position of current modal
+        // Update position of 'next'/'previous' modals using position of current modal
         // update the 'left' property used by the 'slide' class which does the transition, using currentModals position
-        root.style.setProperty('--modal-left-position', `${getModalCoord(currentModal, 'left')}px`);
-        // update the 'top' 'property' used by 'next'/'previous' modals, using coord of the currentModal
-        root.style.setProperty('--modal-top-position', `${getModalCoord(currentModal, 'top')}px`);
-        console.log('currentModal top: ', getModalCoord(currentModal, 'top'));
-                console.log('previousModal top: ', getModalCoord(previousModal, 'top'));
-
+        root.style.setProperty('--modal-left-position', `${getModalLeftPosition(currentModal)}px`);
 
     // Generate 'next' and 'previous' modal HTML using next/previous people in the array
         // if the index is less than the maximum index number (which is the no. of people minus one)...
@@ -269,22 +250,22 @@ function displayModal(person, buttonClicked) {
     }
     // if the buttonClicked was 'Previous', we need to move the previous modal to the current one, then generate a new previous one
     if (buttonClicked === 'Prev') {
-
         // display modal by removing hide-class
         previousModal.classList.remove('hide-modal');
-        previousModal.classList.add('modal-info-container', 'modal2');
+        previousModal.classList.add('modal-info-container', 'extra-modals');
         // Force reflow to ensure transition works - THANKS TO TRAVIS ALSTRAND
         previousModal.offsetWidth;
         // add the classes to slide in the modal, + display it properly
-        previousModal.classList.add('slide2');
+        previousModal.classList.add('slide');
 
         // once the new model is in position
         setTimeout(() => {
             // remove the classes associated with non-current modals
-            previousModal.classList.remove('slide2', 'previous-modal', 'modal2');
-            // make 'previous' the new current - add previousModal to modal contanier, remove 'currentModal
+            previousModal.classList.remove('slide', 'previous-modal', 'extra-modals');
+            // make 'previous' the new current - add previousModal to modal contanier, remove 'currentModal'
             innerModal.insertBefore(previousModal, buttonsContainer);
             currentModal.remove();
+
         // Create a placeholderModal to replace the deleted one and become the new 'previous'
             // create div & give it relevant id
             placeholderModal = document.createElement('div');
@@ -294,13 +275,10 @@ function displayModal(person, buttonClicked) {
             if (index > 0) {
                 placeholderModal.innerHTML = generateModalHTML(people[Number(index) - Number(1)]);
             }
-            // position placeholder to be next 'previous' slide,
-            placeholderModal.style.top = `${getModalCoord(innerModal, 'top')}px`;
-            // add the relevant classes
+            // add the relevant classes, then insert into page
             placeholderModal.classList.add('previous-modal', 'hide-modal');
-
-
             document.body.appendChild(placeholderModal);
+
         // Change file variables to reflect the new modal positions
             // assign the 'currentModal' variable to the modal that we moved into the current position
             currentModal = document.getElementById('previous');
@@ -309,9 +287,7 @@ function displayModal(person, buttonClicked) {
             // change id attributes to relect the above
             previousModal.id = 'previous';
             currentModal.id = 'current';
-
-}, 200);
-    console.log('index after previous click and callback: ', index);
+        }, 200);
     }
 }
 
@@ -329,8 +305,7 @@ gallery.addEventListener('click', (e) => {
         // save the index of the person in the modal
         index = e.target.id;
         // pass in this person to the displayModal function
-        
-        console.log('person before displayModal for gallery click 1', people[index]);
+        //console.log('person before displayModal for gallery click 1', people[index]);
         displayModal(people[index], 'gallery');
 
 
@@ -338,7 +313,7 @@ gallery.addEventListener('click', (e) => {
     } else if (e.target.parentElement.classList.contains('card')) {
         person = people[e.target.parentElement.id];
         index = e.target.parentElement.id;
-                console.log('person before displayModal for gallery click 3', people[index]);
+        //console.log('person before displayModal for gallery click 3', people[index]);
         displayModal(people[index], 'gallery');
 
 
@@ -346,11 +321,7 @@ gallery.addEventListener('click', (e) => {
     } else if (e.target.parentElement.parentElement.classList.contains('card')) {
         person = people[e.target.parentElement.parentElement.id];
         index = e.target.parentElement.parentElement.id;
-                console.log('person before displayModal for gallery click 3', people[index]);
         displayModal(people[index], 'gallery');
-
-
-
     } 
 });
 
@@ -364,9 +335,6 @@ modalContainer.addEventListener('click', (e) => {
     // ... that outside the modal itself was clicked
     } else if (e.target.className === "modal-container") {
         modalContainer.style.display = 'none';
-
-
-
     }
 })
 
@@ -377,39 +345,6 @@ document.body.addEventListener('keyup', (e) => {
         modalContainer.style.display = 'none';
     }
 });
-
-let scrollHeight = 0;
-// we need to listen for user scrolling in order to update the positions of the 'next' and 'previous' modals
-addEventListener("scrollend", (e) => {
-    // debugging 
-        //console.log(e);
-        
-        scrollHeight = e.target.scrollingElement.scrollTop;
-        console.log("scrollHeight", scrollHeight);
-    // GETCOMPUTEDSTYLE IS RETURNING 'AUTO' FOR TOP AFTER SCROLLING, WHICH I CAN'T SET TO 'PREVIOUS' MODAL
-        style = window.getComputedStyle(currentModal); 
-        topp = style.getPropertyValue('top');
-        console.log('currentModal top: ', topp);
-    
-    // FAILED ATTEMPT TO SET PREVIOUS MODAL TO SAME HEIGHT AS CURRENT MODAL AFTER SCROLLING
-    // --modal-top-position is CSS variable for 'top' position of 'previousModal' 
-            previousModal.classList.remove("previous-modal");
-
-        // update left position of 'next'/'previous' modals based on currentModal position
-        root.style.setProperty('--modal-left-position', `${getModalCoord(currentModal, 'left')}px`);
-        // update the 'top' 'property' used by 'next'/'previous' modals, using coord of the currentModal
-        root.style.setProperty('--modal-top-position', `${getModalCoord(currentModal, 'top')}`);
-        previousModal.classList.add("previous-modal");
-
-    // debugging
-        style = window.getComputedStyle(previousModal); 
-        topp = style.getPropertyValue('top');
-        console.log('currentModal top after scrollend: ', getModalCoord(currentModal, 'top'));
-                console.log('previousModal top after scrollend: ', getModalCoord(previousModal, 'top'));
-        previousModal.style.top = getModalCoord(currentModal, 'top');
-
-
- })
 
 // call fetchUsers to run the program
 fetchUsers();

@@ -278,7 +278,7 @@ header h1 {
 /* specific classes for the 'next' and 'previous' modals that slide into the page */
 .next-modal {
     position: fixed;
-    right: -1px;
+    right: 0;
     top: var(--modal-top-position);
 }
 

@@ -149,7 +149,7 @@ innerModal.appendChild(currentModal);
 // add the next and previous modals to the body, so we can absolute position them
 document.body.appendChild(nextModal);
 document.body.appendChild(previousModal);
-//
+
 // create child div for innerModal, to contain the buttons. Then append
 let buttonsContainer = document.createElement('div');
 buttonsContainer.insertAdjacentHTML('afterbegin', `             
@@ -221,6 +221,84 @@ function generateModalHTML(person) {
     `;
 }
 
+// function which transitions the modal we pass into it into the central, visible modal position
+function transitionModal(element) {
+    // display modal by removing hide-class
+    element.classList.remove('hide-modal');
+    element.classList.add('modal-info-container', 'extra-modals');
+    // Force reflow to ensure transition works - THANKS TO TRAVIS ALSTRAND
+    element.offsetWidth;
+    // add the classes to slide in the modal, + display it properly
+    element.classList.add('slide');
+}
+
+// function to replace the previously 'current' modal with the one we transitioned into its place
+// we pass in the modal we transitioned, + the class specific to it that we need to remove
+function replaceModal(element, replaceClass) {
+    // remove the classes associated with non-current modals
+    element.classList.remove('slide', replaceClass, 'extra-modals');
+    // make 'previous' the new current - add previousModal to modal contanier, remove 'currentModal'
+    innerModal.insertBefore(element, buttonsContainer);
+    console.log('innerModal: ', innerModal);
+    currentModal.remove();
+}
+
+// function to create new modal to replace the one we moved into the 'current' position
+// pass in the element we are replacing , the class we want to add it, & the new ID we give it
+function createNewModal(element, addClass, newID) {
+// Create a placeholderModal to replace the deleted one and become the new 'next'/'previous'
+    // create div & give it relevant id
+    placeholderModal = document.createElement('div');
+    placeholderModal.id = 'placeholder';
+    // if the element is previousModal, we want to generate HTML for the next person down, if we are not at 0 in the index
+    if (element.id === 'previous') {
+        // if the index is above 0, ie there's still at least one 'previous' person to come, then...
+        // ... generate the HTML for the next 'previous' person
+        if (index > 0) {
+            placeholderModal.innerHTML = generateModalHTML(people[Number(index) - Number(1)]);
+        }
+        // generate HTML for the new 'next' modal, which is 1 ahead of the new index
+        // No need for condition, as having had a 'previous' means there is at least one 'next'
+        nextModal.innerHTML = generateModalHTML(people[Number(index) + Number(1)]);
+    } else if (element.id === 'next') {
+        // if the index is not already at the end (the last index being length minus one)
+         if (index < (Number(people.length) - Number(1))) {
+            // generate HTML for the next person up
+             placeholderModal.innerHTML = generateModalHTML(people[Number(index) + Number(1)]);
+        }
+        // generate HTML for the 'new' previous modal, which is the previous one for the index
+        // No need for condition, as having had a 'next' means there is at least one 'previous'
+        previousModal.innerHTML = generateModalHTML(people[Number(index) - Number(1)]);
+    }
+    // add the relevant classes, then insert into page
+    placeholderModal.classList.add(addClass, 'hide-modal');
+    document.body.appendChild(placeholderModal);
+
+// Change file variables to reflect the new modal positions
+    // assign the 'currentModal' variable to the modal that we moved into the current position
+    currentModal = document.getElementById(newID);
+    // assign the variable for the modal we moved to the placeholder, ie it's replacement
+    // We have to assign to the names 'previousModal' & 'nextModal', not 'element' , NOT SURE WHY - IS IT BECAUSE FOR ASSIGNMENTS...
+    // ... WE NEED TO USE THE EXISTING REFERENCE, NOT THE COPY OF THE REFERENCE?
+        // THESE LINES DON'T WORK - WE NEED TO USE THE BELOW 'IF' CONDITIONAL INSTEAD
+            // element = document.getElementById('placeholder');
+            // element.id = newID;
+    
+    if (element === previousModal) {
+        previousModal = document.getElementById('placeholder');
+        // change id attributes to relect the above
+        previousModal.id = newID;
+            console.log('new modal: ', nextModal);
+    } else if (element === nextModal) {
+        nextModal = document.getElementById('placeholder');
+        // change id attributes to relect the above
+        nextModal.id = newID;
+        console.log('new modal: ', nextModal);
+    }
+        
+    console.log('currentModal: ', currentModal);
+    currentModal.id = 'current';
+}
 
 // function to display modal when a person is clicked, or next/previous button. Pass in the person + the button
 function displayModal(person, buttonClicked) {
@@ -250,43 +328,24 @@ function displayModal(person, buttonClicked) {
     }
     // if the buttonClicked was 'Previous', we need to move the previous modal to the current one, then generate a new previous one
     if (buttonClicked === 'Prev') {
-        // display modal by removing hide-class
-        previousModal.classList.remove('hide-modal');
-        previousModal.classList.add('modal-info-container', 'extra-modals');
-        // Force reflow to ensure transition works - THANKS TO TRAVIS ALSTRAND
-        previousModal.offsetWidth;
-        // add the classes to slide in the modal, + display it properly
-        previousModal.classList.add('slide');
-
-        // once the new model is in position
+        // slide/transition modal into place
+        transitionModal(previousModal);
+        // once the new modal is in position
         setTimeout(() => {
-            // remove the classes associated with non-current modals
-            previousModal.classList.remove('slide', 'previous-modal', 'extra-modals');
-            // make 'previous' the new current - add previousModal to modal contanier, remove 'currentModal'
-            innerModal.insertBefore(previousModal, buttonsContainer);
-            currentModal.remove();
-
-        // Create a placeholderModal to replace the deleted one and become the new 'previous'
-            // create div & give it relevant id
-            placeholderModal = document.createElement('div');
-            placeholderModal.id = 'placeholder';
-            // if the index is above 0, ie there's still at least one 'previous' person to come, then...
-            // ... generate the HTML for the next 'previous' person
-            if (index > 0) {
-                placeholderModal.innerHTML = generateModalHTML(people[Number(index) - Number(1)]);
-            }
-            // add the relevant classes, then insert into page
-            placeholderModal.classList.add('previous-modal', 'hide-modal');
-            document.body.appendChild(placeholderModal);
-
-        // Change file variables to reflect the new modal positions
-            // assign the 'currentModal' variable to the modal that we moved into the current position
-            currentModal = document.getElementById('previous');
-            // assign the variable for the modal we moved to the placeholder, ie it's replacement
-            previousModal = document.getElementById('placeholder');
-            // change id attributes to relect the above
-            previousModal.id = 'previous';
-            currentModal.id = 'current';
+            // replace the previously 'current' modal with the one we transitioned into its place (which we pass in) as the main modal
+            replaceModal(previousModal, 'previous-modal');
+            // create new 'previous' modal to replace the one we moved into the 'current' position
+            createNewModal(previousModal, 'previous-modal', 'previous');
+        }, 200);
+    } else if (buttonClicked === 'Next') {
+        // transition modal into place
+        transitionModal(nextModal);
+        // when the transition is finished & new modal is in place
+        setTimeout(() => {
+            // replace the previously 'current' modal with the one we transitioned into its place (which we pass in)
+            replaceModal(nextModal, 'next-modal');
+            // create new modal to replace the one we moved into the 'current' position
+            createNewModal(nextModal, 'next-modal', 'next');
         }, 200);
     }
 }
