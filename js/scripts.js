@@ -166,11 +166,16 @@ innerModal.appendChild(buttonsContainer);
 var root = document.querySelector(':root');
 
 // function to get the 'left' position of the current modal, which we can use to position slider modals
-function getModalLeftPosition(element) {
+function getModalPosition(element, position) {
     // get the coords of the modal element
     let rect = element.getBoundingClientRect();
-    let position = rect.left + document.documentElement.scrollLeft;
-    return position;
+    let newPosition = 0;
+    if (position === 'left') {
+        newPosition = rect.left + document.documentElement.scrollLeft;
+    } else if (position === 'right') {
+        newPosition = rect.right + document.documentElement.scrollLeft;
+    }
+    return newPosition;
 };
 
 /**
@@ -196,7 +201,6 @@ buttonsContainer.addEventListener('click', (e) => {
         if (index > Number(0)) {
             // subtract 1 from index representing person to show, then use index to pass that person into displayModal.
             index = Number(index) - Number(1);
-            console.log('index: ', index);
             displayModal(people[index], 'Prev');
         }
     }
@@ -223,23 +227,32 @@ function generateModalHTML(person) {
 
 // function which transitions the modal we pass into it into the central, visible modal position
 function transitionModal(element) {
-    // display modal by removing hide-class
+    // display modal by removing hide-class, + add classes for it's new design
     element.classList.remove('hide-modal');
     element.classList.add('modal-info-container', 'extra-modals');
     // Force reflow to ensure transition works - THANKS TO TRAVIS ALSTRAND
     element.offsetWidth;
-    // add the classes to slide in the modal, + display it properly
-    element.classList.add('slide');
+    nextModal.offsetWidth;
+    // add the class to slide in the modal
+    if (element === previousModal) {
+        element.classList.add('slide-left');
+    }   else if (element === nextModal) {
+        element.classList.add('slide-right');
+    }
 }
 
 // function to replace the previously 'current' modal with the one we transitioned into its place
 // we pass in the modal we transitioned, + the class specific to it that we need to remove
 function replaceModal(element, replaceClass) {
     // remove the classes associated with non-current modals
-    element.classList.remove('slide', replaceClass, 'extra-modals');
+    if (element === previousModal) {
+        element.classList.remove('slide-left', replaceClass, 'extra-modals');
+    }   else if (element === nextModal) {
+        element.classList.remove('slide-right', replaceClass, 'extra-modals');
+    }
     // make 'previous' the new current - add previousModal to modal contanier, remove 'currentModal'
     innerModal.insertBefore(element, buttonsContainer);
-    console.log('innerModal: ', innerModal);
+    //console.log('innerModal: ', innerModal);
     currentModal.remove();
 }
 
@@ -288,15 +301,15 @@ function createNewModal(element, addClass, newID) {
         previousModal = document.getElementById('placeholder');
         // change id attributes to relect the above
         previousModal.id = newID;
-            console.log('new modal: ', nextModal);
+            //console.log('new modal: ', nextModal);
     } else if (element === nextModal) {
         nextModal = document.getElementById('placeholder');
         // change id attributes to relect the above
         nextModal.id = newID;
-        console.log('new modal: ', nextModal);
+        //console.log('new modal: ', nextModal);
     }
         
-    console.log('currentModal: ', currentModal);
+    //console.log('currentModal: ', currentModal);
     currentModal.id = 'current';
 }
 
@@ -311,9 +324,9 @@ function displayModal(person, buttonClicked) {
         modalContainer.style.display = 'flex';
 
         // Update position of 'next'/'previous' modals using position of current modal
-        // update the 'left' property used by the 'slide' class which does the transition, using currentModals position
-        root.style.setProperty('--modal-left-position', `${getModalLeftPosition(currentModal)}px`);
-
+        // update the 'left'/'right' properties used by the 'slide' classes which do the transitions, using currentModals position
+        root.style.setProperty('--modal-left-position', `${getModalPosition(currentModal, 'left')}px`);
+        root.style.setProperty('--modal-right-position', `${getModalPosition(currentModal, 'left')}px`);
     // Generate 'next' and 'previous' modal HTML using next/previous people in the array
         // if the index is less than the maximum index number (which is the no. of people minus one)...
         // .. then generate next modal

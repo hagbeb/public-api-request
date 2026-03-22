@@ -274,11 +274,12 @@ header h1 {
 :root {
   --modal-left-position: 0px;
   --modal-top-position: 0px;
+  --modal-right-position: 0px;
 }
 /* specific classes for the 'next' and 'previous' modals that slide into the page */
 .next-modal {
     position: fixed;
-    right: 0;
+    right: 100%;
     top: var(--modal-top-position);
 }
 
@@ -293,10 +294,15 @@ header h1 {
     display: none;
 }
 
-/* class to activate the slide. It needs to know which left position to go, which we set in JS */
-.slide {
+/* classes to activate the slide. It needs to know which left position to go, which we set in JS */
+.slide-left {
    left: var(--modal-left-position);
    transition: left .2s ease-out;
+}
+
+.slide-right {
+   right: var(--modal-right-position);
+   transition: right .2s ease-out;
 }
 
 .slide2 {
