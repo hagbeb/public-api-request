@@ -227,7 +227,7 @@ function generateModalHTML(person) {
 }
 
 // function which transitions the modal we pass into it into the central, visible modal position
-function transitionModal(element) {
+async function transitionModal(element) {
     // display modal by removing hide-class, + add classes to reflect 'currentModal' design
     element.classList.remove('hide-modal');
     element.classList.add('modal-info-container', 'extra-modals');
@@ -239,8 +239,10 @@ function transitionModal(element) {
     }   else if (element === nextModal) {
         element.classList.add('slide-right');
     }
-        console.log('transitionModal finished');
-
+    // wait for transition to finish before continuing. We will use await when calling this function to do so
+    setTimeout(() => {
+        console.log('waiting');
+    }, 200);
 }
 
 // function to replace the previously 'current' modal with the one we transitioned into its place
@@ -251,7 +253,6 @@ function replaceModal(element, replaceClass1, replaceClass2) {
     // make 'previous' the new current - add previousModal to modal contanier, remove 'currentModal'
     innerModal.insertBefore(element, buttonsContainer);
     currentModal.remove();
-    console.log('replaceModal finished');
 }
 
 // function to create new modal to replace the one we moved into the 'current' position
@@ -299,11 +300,10 @@ function createNewModal(element, addClass, newID) {
         nextModal.id = newID;
     }        
     currentModal.id = 'current';
-        console.log('createModal finished');
 }
 
 // function to display modal when a person is clicked, or next/previous button. Pass in the person + the button
-function displayModal(person, buttonClicked) {
+async function displayModal(person, buttonClicked) {
     // if the button clicked was gallery, then we display the person clicked
     if (buttonClicked === 'gallery') {
     // Display current person in modal:
@@ -330,26 +330,22 @@ function displayModal(person, buttonClicked) {
     }
     // if the buttonClicked was 'Previous', we need to move the previous modal to the current one, then generate a new previous one
     if (buttonClicked === 'Prev') {
-        // slide/transition modal into place
-        transitionModal(previousModal);
+        // slide/transition modal into place. Wait for transition to finish before updating modals
+        await transitionModal(previousModal);
         // once the new modal is in position
-        setTimeout(() => {
-            // replace the previously 'current' modal with the one we transitioned into its place (which we pass in) as the main modal
-            replaceModal(previousModal, 'slide-left', 'previous-modal');
-            // create new 'previous' modal to replace the one we moved into the 'current' position
-            createNewModal(previousModal, 'previous-modal', 'previous');
-        }, 200);
+        // replace the previously 'current' modal with the one we transitioned into its place (which we pass in) as the main modal
+        replaceModal(previousModal, 'slide-left', 'previous-modal');
+        // create new 'previous' modal to replace the one we moved into the 'current' position
+        createNewModal(previousModal, 'previous-modal', 'previous');
+    // if 'Next' was clicked, transition nextModal to current one, then generate a new 'next' modal
     } else if (buttonClicked === 'Next') {
-        // transition modal into place
-        transitionModal(nextModal);
-        // when the transition is finished & new modal is in place
-        setTimeout(() => {
-            // replace the previously 'current' modal with the one we transitioned into its place (which we pass in)
-            replaceModal(nextModal, 'slide-right', 'next-modal');
-            // create new modal to replace the one we moved into the 'current' position
-            createNewModal(nextModal, 'next-modal', 'next');
-        }, 200);
-        console.log('timeout finished');
+        // transition modal into place, wait to finish
+        await transitionModal(nextModal);
+        // when the transition is finished & new modal is in place...
+        // replace the previously 'current' modal with the one we transitioned into its place (which we pass in)
+        replaceModal(nextModal, 'slide-right', 'next-modal');
+        // create new modal to replace the one we moved into the 'current' position
+        createNewModal(nextModal, 'next-modal', 'next');
     }
 }
 
