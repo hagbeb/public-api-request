@@ -270,7 +270,7 @@ header h1 {
     }
 }
 
-/* Use a variable for left position that we can update in JS to position 'next' and 'previous' modals */
+/* Use a variables for left & right positions that we can update in JS to position 'next' and 'previous' modals */
 :root {
   --modal-left-position: 0px;
   --modal-top-position: 0px;
@@ -305,18 +305,6 @@ header h1 {
    transition: right .2s ease-out;
 }
 
-.slide2 {
-    z-index:10;
-    animation-name: myAnimation;
-    animation-duration: .2s;
-    animation-timing-function: ease-out;
-}
-
-@keyframes myAnimation {
-    from {left: 100%;}
-    to {left: var(--modal-left-position);}
-}
-
 /* extra-modals class applies to both the 'next' and 'previous' modals that slide into page */
 .extra-modals {
     width: 95%;
@@ -324,11 +312,8 @@ header h1 {
     min-height: 415px;
     margin-top: 100px;
     margin-bottom: auto;
-    /*margin: 10px auto auto;*/
     padding-bottom: 15px;
     background: rgba(255, 255, 255, 1);
-    /*border-radius: 0.25em;
-    border: 1px solid rgba(100, 100, 100, 0.3);*/
 }
 
 .extra-modals hr {
