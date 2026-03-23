@@ -1,9 +1,3 @@
-// ie WHEN SLIDER WAS WORKING, BUT BEFORE TRYING TO FIX SCROLL PROBLEM
-
-
-let topp;
-let style;
-
 // create array for saving people to so we can reference them later when creating modal & searching by name
 let people = [];
 // filtered array of people when the user searches
@@ -158,8 +152,29 @@ buttonsContainer.insertAdjacentHTML('afterbegin', `
             <button type="button" id="modal-next" class="modal-next btn">Next</button>
         </div>
     `
-)
+);
 innerModal.appendChild(buttonsContainer);
+
+// variables to store the next and previous buttons, declared globally so they can be used in the 2 functions below
+let prev;
+let next;
+// get the buttons to use in disableEnableButtons function
+// we have to wait for the DOM to finish loading, as we added the elements using insertAdjacentHTML
+window.addEventListener('DOMContentLoaded', () => {
+    prev = document.getElementById('modal-prev');
+    next = document.getElementById('modal-next');
+});
+// function to disable buttons until displayModal function has finished after Next/Prev buttons have been clicked
+function disableEnableButtons(action) {
+    if (action == 'off') {
+        prev.disabled = true;
+        next.disabled = true;
+    // keep the buttons enabled by default, unless 'off' is specifically called
+    } else {
+        prev.disabled = false;
+        next.disabled = false;
+    } 
+}
 
 // Allow us to dynamically update the 'left' position in the 'slide' class, so the new modals now where to go
 // get the CSS root element
@@ -187,22 +202,27 @@ function getModalPosition(element, position) {
 
 // add a listener to the buttonsContainer, to listen for the 'next or previous' buttons being clicked
 buttonsContainer.addEventListener('click', (e) => {
-    // if the next button was clicked
+// if the next button was clicked
     if (e.target.textContent === 'Next') {
         // if the index is less than the maximum index number (which is the no. of people minus one)...
         // ... since we don't want to add one if we are already at the end of the list
         if (index < (Number(people.length) - Number(1))) {
-            // add one to the index representing the person to show, then use that index to pass the person into displayModal
+            // add one to the index representing the person to show, then call displayModal
             index = Number(index) + Number(1);
-            displayModal(people[index], 'Next');
+            // disable buttons until displayModal has finished - they will be re-enabled at the end of displayModal
+            disableEnableButtons('off');
+            displayModal('Next');
         }
+
     // else if the previous button was clicked
     } else if (e.target.textContent === 'Prev') {
         // if the index number is greater than 0 (since we dont' want to subtract/go back from 0)
         if (index > Number(0)) {
-            // subtract 1 from index representing person to show, then use index to pass that person into displayModal.
+            // subtract 1 from index representing person to show, then call displayModal.
             index = Number(index) - Number(1);
-            displayModal(people[index], 'Prev');
+            // disable buttons until displayModal has finished - they will be re-enabled at the end of displayModal
+            disableEnableButtons('off');
+            displayModal('Prev');
         }
     }
 });
@@ -227,7 +247,7 @@ function generateModalHTML(person) {
 }
 
 // function which transitions the modal we pass into it into the central, visible modal position
-async function transitionModal(element) {
+function transitionModal(element) {
     // display modal by removing hide-class, + add classes to reflect 'currentModal' design
     element.classList.remove('hide-modal');
     element.classList.add('modal-info-container', 'extra-modals');
@@ -239,10 +259,7 @@ async function transitionModal(element) {
     }   else if (element === nextModal) {
         element.classList.add('slide-right');
     }
-    // wait for transition to finish before continuing. We will use await when calling this function to do so
-    setTimeout(() => {
-        console.log('waiting');
-    }, 200);
+    console.log('transitionModal finished');
 }
 
 // function to replace the previously 'current' modal with the one we transitioned into its place
@@ -253,6 +270,7 @@ function replaceModal(element, replaceClass1, replaceClass2) {
     // make 'previous' the new current - add previousModal to modal contanier, remove 'currentModal'
     innerModal.insertBefore(element, buttonsContainer);
     currentModal.remove();
+    console.log('replaceModal finished');
 }
 
 // function to create new modal to replace the one we moved into the 'current' position
@@ -300,10 +318,16 @@ function createNewModal(element, addClass, newID) {
         nextModal.id = newID;
     }        
     currentModal.id = 'current';
+        console.log('createModal finished');
 }
 
-// function to display modal when a person is clicked, or next/previous button. Pass in the person + the button
-async function displayModal(person, buttonClicked) {
+// wrap setTimeout in a promise so the program waits for it to finish
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// function to display modal when a person is clicked, or next/previous button. Pass in the button
+async function displayModal(buttonClicked) {
     // if the button clicked was gallery, then we display the person clicked
     if (buttonClicked === 'gallery') {
     // Display current person in modal:
@@ -330,23 +354,29 @@ async function displayModal(person, buttonClicked) {
     }
     // if the buttonClicked was 'Previous', we need to move the previous modal to the current one, then generate a new previous one
     if (buttonClicked === 'Prev') {
-        // slide/transition modal into place. Wait for transition to finish before updating modals
-        await transitionModal(previousModal);
+        // slide/transition modal into place
+        transitionModal(previousModal);
         // once the new modal is in position
+        await sleep(150);
         // replace the previously 'current' modal with the one we transitioned into its place (which we pass in) as the main modal
         replaceModal(previousModal, 'slide-left', 'previous-modal');
         // create new 'previous' modal to replace the one we moved into the 'current' position
         createNewModal(previousModal, 'previous-modal', 'previous');
-    // if 'Next' was clicked, transition nextModal to current one, then generate a new 'next' modal
+
     } else if (buttonClicked === 'Next') {
-        // transition modal into place, wait to finish
-        await transitionModal(nextModal);
-        // when the transition is finished & new modal is in place...
+        // transition modal into place
+        transitionModal(nextModal);
+        // when the transition is finished & new modal is in place
+        await sleep(200); 
         // replace the previously 'current' modal with the one we transitioned into its place (which we pass in)
         replaceModal(nextModal, 'slide-right', 'next-modal');
         // create new modal to replace the one we moved into the 'current' position
         createNewModal(nextModal, 'next-modal', 'next');
+
+        console.log('timeout finished');
     }
+    // make sure buttons are re-enabled
+    disableEnableButtons('on');
 }
 
 // set it's display to initially none
@@ -362,22 +392,22 @@ gallery.addEventListener('click', (e) => {
         //person = people[e.target.id];
         // save the index of the person in the modal
         index = e.target.id;
-        // pass in this person to the displayModal function
-        displayModal(people[index], 'gallery');
+        // pass in this button to the displayModal function
+        displayModal('gallery');
 
 
     // repeat process for child elements inside the 'card' parent
     } else if (e.target.parentElement.classList.contains('card')) {
         person = people[e.target.parentElement.id];
         index = e.target.parentElement.id;
-        displayModal(people[index], 'gallery');
+        displayModal('gallery');
 
 
     // repeat for grandchild elements
     } else if (e.target.parentElement.parentElement.classList.contains('card')) {
         person = people[e.target.parentElement.parentElement.id];
         index = e.target.parentElement.parentElement.id;
-        displayModal(people[index], 'gallery');
+        displayModal('gallery');
     } 
 });
 
@@ -404,7 +434,6 @@ document.body.addEventListener('keyup', (e) => {
 
 // call fetchUsers to run the program
 fetchUsers();
-
 
 
 

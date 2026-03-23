@@ -16,7 +16,7 @@ html, body {
 body {
     font-family: "Nunito", sans-serif;
     text-align: center;
-    background: rgba(235, 235, 235, 0.9);
+    background: #dddddd;
 }
 
 header {
@@ -29,16 +29,18 @@ header {
 }
 
 header h1 {
-    font-size: 1.25em;
+    font-size: 2.1em;
     color: rgba(50, 50, 50, 0.9);
     margin-top: 35px;
+    text-shadow: 2px 2px 4px #ffffff;
 }
 
 .search-input {
     padding: 0.4rem 1rem;
     border: 1px solid rgba(200, 200, 200, 0.9);
     border-radius: 0.25rem 0 0 0.25rem ;
-    max-width: 20rem;
+    max-width: 30rem;
+    min-width: 18em;
     transition: .4s ease-out;
 }
 
@@ -90,6 +92,7 @@ header h1 {
     border: 1px solid rgba(50, 50, 50, 0.3);
     transition: .4s ease-out;
     overflow: hidden;
+    box-shadow: 0px 5px 5px #aaaaaa;
 }
 
 .card-img {
@@ -142,17 +145,7 @@ header h1 {
     border-radius: 0.25em;
     border: 1px solid rgba(100, 100, 100, 0.3);
     transition: .4s ease-out;
-}
-
-/* Fading animation */
-.fade {
-  animation-name: fade;
-  animation-duration: 1.5s;
-}
-
-@keyframes fade {
-  from {opacity: .4}
-  to {opacity: 1}
+    box-shadow: 0 0 8px #ccc;
 }
 
 .modal-close-btn {
@@ -227,7 +220,7 @@ header h1 {
 @media (min-width: 768px) {
     .header-inner-container {
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
         flex-wrap: nowrap;
         justify-content: space-between;
         padding-right: 25px;
@@ -235,11 +228,11 @@ header h1 {
     }
 
     .header-text-container {
-        text-align: left;
+        text-align: center;
     }
 
     .search-container {
-        margin-top: 25px;
+        margin-bottom: 10px;
     }
 
     .modal {
@@ -276,6 +269,7 @@ header h1 {
   --modal-top-position: 0px;
   --modal-right-position: 0px;
 }
+
 /* specific classes for the 'next' and 'previous' modals that slide into the page */
 .next-modal {
     position: fixed;
@@ -297,12 +291,12 @@ header h1 {
 /* classes to activate the slide. It needs to know which left position to go, which we set in JS */
 .slide-left {
    left: var(--modal-left-position);
-   transition: left .2s ease-out;
+   transition: left .15s ease-out;
 }
 
 .slide-right {
    right: var(--modal-right-position);
-   transition: right .2s ease-out;
+   transition: right .15s ease-out;
 }
 
 /* extra-modals class applies to both the 'next' and 'previous' modals that slide into page */
