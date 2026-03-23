@@ -229,7 +229,7 @@ header h1 {
     header h1 {
         font-size: 3em;
     }
-    
+
     .header-inner-container {
         display: flex;
         flex-direction: column;
@@ -303,12 +303,12 @@ header h1 {
 /* classes to activate the slide. It needs to know which left position to go, which we set in JS */
 .slide-left {
    left: var(--modal-left-position);
-   transition: left .15s ease-out;
+   transition: left .2s ease-out;
 }
 
 .slide-right {
    right: var(--modal-right-position);
-   transition: right .15s ease-out;
+   transition: right .2s ease-out;
 }
 
 /* extra-modals class applies to both the 'next' and 'previous' modals that slide into page */

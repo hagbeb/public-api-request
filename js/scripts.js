@@ -210,7 +210,7 @@ buttonsContainer.addEventListener('click', (e) => {
             // add one to the index representing the person to show, then call displayModal
             index = Number(index) + Number(1);
             // disable buttons until displayModal has finished - they will be re-enabled at the end of displayModal
-            disableEnableButtons('off');
+            //disableEnableButtons('off');
             displayModal('Next');
         }
 
@@ -221,7 +221,7 @@ buttonsContainer.addEventListener('click', (e) => {
             // subtract 1 from index representing person to show, then call displayModal.
             index = Number(index) - Number(1);
             // disable buttons until displayModal has finished - they will be re-enabled at the end of displayModal
-            disableEnableButtons('off');
+            //disableEnableButtons('off');
             displayModal('Prev');
         }
     }
@@ -318,10 +318,10 @@ function createNewModal(element, addClass, newID) {
         nextModal.id = newID;
     }        
     currentModal.id = 'current';
-        console.log('createModal finished');
+    console.log('createModal finished');
 }
 
-// wrap setTimeout in a promise so the program waits for it to finish
+// wrap setTimeout in a promise so the program waits for it to finish. We will use this in displayModal to wait for transition to finish
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -357,7 +357,7 @@ async function displayModal(buttonClicked) {
         // slide/transition modal into place
         transitionModal(previousModal);
         // once the new modal is in position
-        await sleep(150);
+        await sleep(200);
         // replace the previously 'current' modal with the one we transitioned into its place (which we pass in) as the main modal
         replaceModal(previousModal, 'slide-left', 'previous-modal');
         // create new 'previous' modal to replace the one we moved into the 'current' position
@@ -372,11 +372,9 @@ async function displayModal(buttonClicked) {
         replaceModal(nextModal, 'slide-right', 'next-modal');
         // create new modal to replace the one we moved into the 'current' position
         createNewModal(nextModal, 'next-modal', 'next');
-
-        console.log('timeout finished');
     }
     // make sure buttons are re-enabled
-    disableEnableButtons('on');
+    //disableEnableButtons('on');
 }
 
 // set it's display to initially none
@@ -395,13 +393,11 @@ gallery.addEventListener('click', (e) => {
         // pass in this button to the displayModal function
         displayModal('gallery');
 
-
     // repeat process for child elements inside the 'card' parent
     } else if (e.target.parentElement.classList.contains('card')) {
         person = people[e.target.parentElement.id];
         index = e.target.parentElement.id;
         displayModal('gallery');
-
 
     // repeat for grandchild elements
     } else if (e.target.parentElement.parentElement.classList.contains('card')) {
