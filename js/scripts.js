@@ -210,7 +210,7 @@ buttonsContainer.addEventListener('click', (e) => {
             // add one to the index representing the person to show, then call displayModal
             index = Number(index) + Number(1);
             // disable buttons until displayModal has finished - they will be re-enabled at the end of displayModal
-            //disableEnableButtons('off');
+            disableEnableButtons('off');
             displayModal('Next');
         }
 
@@ -221,7 +221,7 @@ buttonsContainer.addEventListener('click', (e) => {
             // subtract 1 from index representing person to show, then call displayModal.
             index = Number(index) - Number(1);
             // disable buttons until displayModal has finished - they will be re-enabled at the end of displayModal
-            //disableEnableButtons('off');
+            disableEnableButtons('off');
             displayModal('Prev');
         }
     }
@@ -259,7 +259,6 @@ function transitionModal(element) {
     }   else if (element === nextModal) {
         element.classList.add('slide-right');
     }
-    console.log('transitionModal finished');
 }
 
 // function to replace the previously 'current' modal with the one we transitioned into its place
@@ -270,7 +269,6 @@ function replaceModal(element, replaceClass1, replaceClass2) {
     // make 'previous' the new current - add previousModal to modal contanier, remove 'currentModal'
     innerModal.insertBefore(element, buttonsContainer);
     currentModal.remove();
-    console.log('replaceModal finished');
 }
 
 // function to create new modal to replace the one we moved into the 'current' position
@@ -318,7 +316,6 @@ function createNewModal(element, addClass, newID) {
         nextModal.id = newID;
     }        
     currentModal.id = 'current';
-    console.log('createModal finished');
 }
 
 // wrap setTimeout in a promise so the program waits for it to finish. We will use this in displayModal to wait for transition to finish
@@ -357,7 +354,7 @@ async function displayModal(buttonClicked) {
         // slide/transition modal into place
         transitionModal(previousModal);
         // once the new modal is in position
-        await sleep(200);
+        await sleep(150);
         // replace the previously 'current' modal with the one we transitioned into its place (which we pass in) as the main modal
         replaceModal(previousModal, 'slide-left', 'previous-modal');
         // create new 'previous' modal to replace the one we moved into the 'current' position
@@ -374,7 +371,7 @@ async function displayModal(buttonClicked) {
         createNewModal(nextModal, 'next-modal', 'next');
     }
     // make sure buttons are re-enabled
-    //disableEnableButtons('on');
+    disableEnableButtons('on');
 }
 
 // set it's display to initially none
