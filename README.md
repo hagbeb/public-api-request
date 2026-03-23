@@ -17,11 +17,13 @@ The values for these variables were updated in JS when a new modal was opened (l
 
 - (Line 189-onwards in scripts.js) In the listener for the buttons, displayModal was called, passing in the button that was clicked.
 
-- displayModal called 3 sub-functions to handle the different parts of sliding in a modal:
+displayModal:
+- (line 347 of scripts.js) at the start of 'displayModal', it calls the 'hasUserSearched' function to decide whether to use the 'people' array, which contains all 12 people returned, or to use the 'filteredPeople' array, which are the people remaining after the user used the search box. 
+- 'displayModal' then calls 3 sub-functions to handle the different parts of sliding in a modal:
     - (line 230 in scripts.js) 'transitionModal' was responsible for making the modal visible by removing the 'hide-modal' class. It also added classes to make it's design reflect the main modal. It then added the relevant 'transition' class ('slide-left' for the previous button, or 'slide-right' for the 'next' button). It then waited 200ms until the end of the transition using setTimeout. This was made an async function in order to do this, and the parent displayModal function was defined using async so that we could await transitionModal when calling it. We  did this (waited until the end) so that one slide was finished before the user called another, which would cause unintended behaviour.
     - (line 250) replaceModal was then called, which was responsible for making the 'next'/'previous' modals the new 'current' modal - it removed the classes associated with the 'next'/'previous' modals, then inserted it into the 'innerModal' div where the main modal resided. Finally, it removed the existing (now previous) current modal from the DOM.
     - (line 260) createNewModal was then called, which was responsible for creating a new modal to replace the previous 'next' or 'previous' modal that was transitioned into the current modal. Initially, a placeholder div was created. Then generateModalHTML was called to create the relevant HTML for the new modal, depending on whether we wanted a new 'Next' or 'Previous' modal. generateModalHTML was also used to update the remaining 'next' or 'previous' modal that wasn't used, as it needs to reflect the new person in the main modal. The relevant classes were added, and the placeholder was then added to the page. (Lines 291-302 of scripts.js) The variables that stored the current modal, previous modal, and next modal, were then updated to reflect the new statuses of the modals after the transition (eg if the 'Next' button was clicked, the 'currentModal' variable was assigned to what was the 'nextModal' variable. The 'nextModal' variable would then be assigned to the placeholder, since we need a new 'nextModal'.)
-
+  
 ### Style changes
 
 - (Line 19 of styles.css) The background-color of the body was changed to #dddddd;

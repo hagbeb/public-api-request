@@ -53,6 +53,20 @@ searchButton.addEventListener('click', (e) => {
     searchFilter();
 });
 
+// variable to store which array displayModal should use - either 'people' (for everyone) or 'filteredPeople' (if the user has ...
+// done a search)
+let arrayToUse = [];
+// function to define which array should be used in the listeners and callbacks, depending on whether user has searched
+function hasUserSearched() {
+    // if filteredPeople has entries, this means that the user has filtered the list using a search. So use that array
+    if (filteredPeople.length > 0) {
+        arrayToUse = filteredPeople;
+    // if the user has not filtered people using the search facility, then use the 'people' array
+    } else {
+        arrayToUse = people;
+    }
+}
+
 /**
  * FETCH AND ADD EMPLOYEES TO PAGE
  */
@@ -202,11 +216,13 @@ function getModalPosition(element, position) {
 
 // add a listener to the buttonsContainer, to listen for the 'next or previous' buttons being clicked
 buttonsContainer.addEventListener('click', (e) => {
+    // decide whether to use 'people' or 'filteredPeople' array
+    hasUserSearched();
 // if the next button was clicked
     if (e.target.textContent === 'Next') {
         // if the index is less than the maximum index number (which is the no. of people minus one)...
         // ... since we don't want to add one if we are already at the end of the list
-        if (index < (Number(people.length) - Number(1))) {
+        if (index < (Number(arrayToUse.length) - Number(1))) {
             // add one to the index representing the person to show, then call displayModal
             index = Number(index) + Number(1);
             // disable buttons until displayModal has finished - they will be re-enabled at the end of displayModal
@@ -274,6 +290,8 @@ function replaceModal(element, replaceClass1, replaceClass2) {
 // function to create new modal to replace the one we moved into the 'current' position
 // pass in the element we are replacing , the class we want to add it, & the new ID we give it
 function createNewModal(element, addClass, newID) {
+    // decide which array to use depending on whether user has searched
+    hasUserSearched();
 // Create a placeholderModal to replace the deleted one and become the new 'next'/'previous'
     // create div & give it relevant id
     placeholderModal = document.createElement('div');
@@ -283,20 +301,20 @@ function createNewModal(element, addClass, newID) {
         // if the index is above 0, ie there's still at least one 'previous' person to come, then...
         // ... generate the HTML for the next 'previous' person
         if (index > 0) {
-            placeholderModal.innerHTML = generateModalHTML(people[Number(index) - Number(1)]);
+            placeholderModal.innerHTML = generateModalHTML(arrayToUse[Number(index) - Number(1)]);
         }
         // generate HTML for the new 'next' modal, which is 1 ahead of the new index
         // No need for condition, as having had a 'previous' means there is at least one 'next'
-        nextModal.innerHTML = generateModalHTML(people[Number(index) + Number(1)]);
+        nextModal.innerHTML = generateModalHTML(arrayToUse[Number(index) + Number(1)]);
     } else if (element.id === 'next') {
         // if the index is not already at the end (the last index being length minus one)
-         if (index < (Number(people.length) - Number(1))) {
+         if (index < (Number(arrayToUse.length) - Number(1))) {
             // generate HTML for the next person up
-             placeholderModal.innerHTML = generateModalHTML(people[Number(index) + Number(1)]);
+             placeholderModal.innerHTML = generateModalHTML(arrayToUse[Number(index) + Number(1)]);
         }
         // generate HTML for the 'new' previous modal, which is the previous one for the index
         // No need for condition, as having had a 'next' means there is at least one 'previous'
-        previousModal.innerHTML = generateModalHTML(people[Number(index) - Number(1)]);
+        previousModal.innerHTML = generateModalHTML(arrayToUse[Number(index) - Number(1)]);
     }
     // add the relevant classes, then insert into page
     placeholderModal.classList.add(addClass, 'hide-modal');
@@ -325,11 +343,13 @@ function sleep(ms) {
 
 // function to display modal when a person is clicked, or next/previous button. Pass in the button
 async function displayModal(buttonClicked) {
+    // decide whether to use 'people' or 'filteredPeople' array
+    hasUserSearched();
     // if the button clicked was gallery, then we display the person clicked
     if (buttonClicked === 'gallery') {
     // Display current person in modal:
         // generate the currentModal HTML
-        currentModal.innerHTML = generateModalHTML(people[index]);
+        currentModal.innerHTML = generateModalHTML(arrayToUse[index]);
         // display the container to display the current modal (which is always visible when container is open)
         modalContainer.style.display = 'flex';
 
@@ -340,13 +360,13 @@ async function displayModal(buttonClicked) {
     // Generate 'next' and 'previous' modal HTML using next/previous people in the array
         // if the index is less than the maximum index number (which is the no. of people minus one)...
         // .. then generate next modal
-        if (index < (Number(people.length) - Number(1))) {
-            nextModal.innerHTML = generateModalHTML(people[Number(index) + Number(1)]);
+        if (index < (Number(arrayToUse.length) - Number(1))) {
+            nextModal.innerHTML = generateModalHTML(arrayToUse[Number(index) + Number(1)]);
         }
         // if the index number is greater than 0 (since we dont' want to subtract/go back from 0)
         if (index > Number(0)) {
             // generate previous modal
-            previousModal.innerHTML = generateModalHTML(people[Number(index) - Number(1)]);
+            previousModal.innerHTML = generateModalHTML(arrayToUse[Number(index) - Number(1)]);
         }
     }
     // if the buttonClicked was 'Previous', we need to move the previous modal to the current one, then generate a new previous one
@@ -383,8 +403,6 @@ gallery.addEventListener('click', (e) => {
     // do this by checking if the element clicked was the 'card' parent, one of it's children...
     // ... or one of it's grandchildren. This encompasses all elements in the person card
     if (e.target.classList.contains('card')) {
-        // get the person via matching person card id with people array index
-        //person = people[e.target.id];
         // save the index of the person in the modal
         index = e.target.id;
         // pass in this button to the displayModal function
@@ -392,13 +410,11 @@ gallery.addEventListener('click', (e) => {
 
     // repeat process for child elements inside the 'card' parent
     } else if (e.target.parentElement.classList.contains('card')) {
-        person = people[e.target.parentElement.id];
         index = e.target.parentElement.id;
         displayModal('gallery');
 
     // repeat for grandchild elements
     } else if (e.target.parentElement.parentElement.classList.contains('card')) {
-        person = people[e.target.parentElement.parentElement.id];
         index = e.target.parentElement.parentElement.id;
         displayModal('gallery');
     } 
