@@ -218,7 +218,7 @@ function getModalPosition(element, position) {
 buttonsContainer.addEventListener('click', (e) => {
     // decide whether to use 'people' or 'filteredPeople' array
     hasUserSearched();
-// if the next button was clicked
+    // if the next button was clicked
     if (e.target.textContent === 'Next') {
         // if the index is less than the maximum index number (which is the no. of people minus one)...
         // ... since we don't want to add one if we are already at the end of the list
@@ -336,7 +336,7 @@ function createNewModal(element, addClass, newID) {
     currentModal.id = 'current';
 }
 
-// wrap setTimeout in a promise so the program waits for it to finish. We will use this in displayModal to wait for transition to finish
+// wrap setTimeout in a promise so the function waits for it to finish. We will use this in displayModal to wait for transition to finish
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
