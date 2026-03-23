@@ -30,7 +30,7 @@ The values for these variables were updated in JS when a new modal was opened (l
 
 - (Line 227) The text-align of the header as changed to center.
 
-- (Line 32) The font-size of the header was changed to 2.1em.
+- (Line 32) The font-size of the header was changed to 2.5em by default. However, it was also give a size of 3em for devices with min-width of 768px (line 230).
 
 - (Lines 41 and 42) The max-width of the search bar was increased to 30em, and it was given a min-width of 18em.
 
@@ -41,3 +41,5 @@ The values for these variables were updated in JS when a new modal was opened (l
 - (Line 95) The cards which display the information of each person were given a box-shadow of 0px 5px 5px #aaaaaa. Thanks to W3 Schools.
 
 - (Line 148) The visible modal display was given a box-shadow of 0 0 8px #ccc via the .modal class.
+
+- The header font was changed to "Roadkill Heavy", which I had previously purchased. The font file was added to the newly created 'fonts' folder in the root. The font was then imported to styles.css using the @font-face rule (line 8). The 'header h1' class was then given this font-family (line 38). CREDIT TO DIGITIALOCEAN.COM FOR INSTRUCTIONS.
