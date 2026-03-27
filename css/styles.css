@@ -4,11 +4,12 @@
 
 @import url('https://fonts.googleapis.com/css?family=Nunito');
 
-/* allow use of Roadkill Heavy font. CREDIT TO DIGITALOCEAN.COM FOR INSTRUCTIONS */
+/* allow use of Roadkill Heavy font. CREDIT TO DIGITALOCEAN.COM FOR INSTRUCTIONS 
 @font-face {
   font-family: "Roadkill Heavy";
   src: local('fonts/Roadkill_Heavy.otf') format('opentype');
 }
+*/
 
 * {
 	box-sizing: border-box;
@@ -35,8 +36,8 @@ header {
 }
 
 header h1 {
-    font-family: "Roadkill Heavy";
-    font-size: 2.5em;
+    font-family: "Nunito", sans-serif;
+    font-size: 2.1em;
     color: rgba(50, 50, 50, 0.9);
     margin-top: 35px;
     text-shadow: 2px 2px 4px #ffffff;
@@ -227,7 +228,7 @@ header h1 {
 @media (min-width: 768px) {
 
     header h1 {
-        font-size: 3em;
+        font-size: 2.5em;
     }
 
     .header-inner-container {
